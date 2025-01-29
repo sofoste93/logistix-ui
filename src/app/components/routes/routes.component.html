@@ -1,0 +1,20 @@
+<div class="container mt-4">
+    <h2 class="text-primary">🚛 Verfügbare Routen</h2>
+    <table class="table table-hover shadow-sm mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Stationen</th>
+          <th>Verfügbares Gewicht</th>
+          <th>Verfügbares Volumen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let route of routes" class="animate__animated animate__fadeIn">
+          <td>{{ route.stations.join(' → ') }}</td>
+          <td>{{ route.availableWeight }} kg</td>
+          <td>{{ route.availableVolume }} m³</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

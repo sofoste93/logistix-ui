@@ -1,0 +1,22 @@
+<div class="container mt-4">
+    <h2 class="text-success">📦 Aktuelle Reservierungen</h2>
+    <table class="table table-hover shadow-sm mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Start</th>
+          <th>Ziel</th>
+          <th>Reserviertes Gewicht</th>
+          <th>Reserviertes Volumen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let booking of bookings" class="animate__animated animate__fadeIn">
+          <td>{{ booking.routeStart }}</td>
+          <td>{{ booking.routeZiel }}</td>
+          <td>{{ booking.reservedWeight }} kg</td>
+          <td>{{ booking.reservedVolume }} m³</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
