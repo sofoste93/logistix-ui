@@ -117,7 +117,7 @@ npm run check
 mvn -f backend/pom.xml test
 ```
 
-CI runs UI tests, API tests on Java 17 and 21, then starts the final combined JAR and checks its UI, dashboard and health endpoint.
+CI runs the UI tests with Vitest, API tests on Java 17 and 21, then starts the final combined JAR and checks its UI, dashboard and health endpoint.
 
 ## Languages
 

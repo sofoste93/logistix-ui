@@ -13,6 +13,7 @@ All notable changes are documented here.
 - Light, dark and system themes with reduced-motion support
 - Native runtime bundles for Windows, Linux and macOS
 - Docker image, CI checks, screenshot and learner tutorial
+- Vitest unit-test setup with a vulnerability-free npm dependency tree
 
 ### Changed
 

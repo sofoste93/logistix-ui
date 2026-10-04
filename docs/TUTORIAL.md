@@ -85,7 +85,7 @@ npm test
 mvn -f backend/pom.xml test
 ```
 
-The Angular tests check the API contract and component behavior. The Quarkus integration test starts the application, creates a route and booking through HTTP, and verifies that capacity decreases.
+The Angular Vitest tests check the API contract and component behavior. The Quarkus integration test starts the application, creates a route and booking through HTTP, and verifies that capacity decreases.
 
 ## 6. A good next learning mission
 
