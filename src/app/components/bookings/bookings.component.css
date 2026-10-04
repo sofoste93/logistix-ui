@@ -1,10 +1,38 @@
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .table-hover tbody tr:hover {
-    background-color: #f8f9fa;
-    transition: background-color 0.3s;
-  }
-  
+.page-intro { padding-top: 75px; padding-bottom: 38px; display: flex; justify-content: space-between; align-items: end; gap: 30px; }
+.page-intro h1 { margin: 8px 0; font-size: clamp(45px, 6vw, 72px); letter-spacing: -.055em; }
+.page-intro p, .form-heading p { margin: 0; color: var(--muted); }
+.primary-button { min-height: 48px; padding: 0 19px; border: 0; border-radius: 12px; background: var(--ocean); color: white; font-weight: 800; cursor: pointer; }
+.primary-button:disabled { opacity: .5; cursor: wait; }
+.booking-layout { margin-bottom: 35px; padding-top: 30px; padding-bottom: 30px; display: grid; grid-template-columns: 1.3fr .7fr; gap: 28px; border-block: 1px solid var(--line); }
+form, aside { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--card-shadow); }
+form { display: grid; gap: 15px; }
+.form-heading h2 { margin: 7px 0; }
+label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 800; }
+input, select { width: 100%; height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--canvas); color: var(--ink); }
+.two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+aside { display: flex; flex-direction: column; }
+.capacity-visual { flex: 1; min-height: 190px; display: grid; place-content: center; text-align: center; }
+.capacity-visual strong { font-size: 43px; letter-spacing: -.04em; }
+.capacity-visual span { color: var(--muted); font-size: 11px; font-weight: 800; }
+.capacity-visual i { width: 150px; height: 5px; margin-top: 15px; overflow: hidden; border-radius: 99px; background: linear-gradient(90deg, var(--aqua) var(--fill), var(--line) var(--fill)); }
+dl { margin: 0; }
+dl div { padding: 10px 0; display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
+dt { color: var(--muted); font-size: 11px; } dd { margin: 0; font-size: 12px; font-weight: 800; }
+.error-banner { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; padding: 13px 16px; border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--danger) 7%, var(--surface)); }
+.error-banner > span { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; background: var(--danger); color: white; font-weight: 800; }
+.error-banner p { flex: 1; margin: 0; }.error-banner button { border: 0; background: none; color: var(--danger); font-weight: 800; cursor: pointer; }
+.manifest-section { padding-bottom: 110px; }
+.manifest-heading { padding: 12px 3px; display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); box-shadow: var(--card-shadow); }
+table { width: 100%; min-width: 900px; border-collapse: collapse; }
+th { padding: 15px 18px; background: color-mix(in srgb, var(--canvas) 75%, var(--surface)); color: var(--muted); font-size: 9px; letter-spacing: .11em; text-align: left; text-transform: uppercase; }
+td { padding: 18px; border-top: 1px solid var(--line); font-size: 13px; }
+td small, td span:not(.status) { display: block; color: var(--muted); font-size: 10px; }
+.reference { color: var(--ocean-bright); font: 700 11px monospace; }
+.route-name { margin-bottom: 2px; color: var(--ink) !important; font-size: 12px !important; font-weight: 800; }
+.status { display: inline-block; padding: 5px 8px; border-radius: 99px; background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); font-size: 9px; font-weight: 800; }
+.status.transit { background: color-mix(in srgb, var(--success) 13%, transparent); color: var(--success); }
+.loading-row { height: 180px; color: var(--muted); text-align: center; }
+@media (max-width: 800px) { .booking-layout { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .page-intro { padding-top: 45px; align-items: start; flex-direction: column; } .two-columns { grid-template-columns: 1fr; } form, aside { padding: 20px; } }
+

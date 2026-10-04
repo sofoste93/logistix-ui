@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags: ['v2.*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: mvn -B -f backend/pom.xml package
+      - run: cp backend/target/logistix-api-2.0.0-runner.jar Logistix-2.0.0.jar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Logistix-JAR
+          path: Logistix-2.0.0.jar
+
+  native:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            archive: Logistix-Windows-x64.zip
+          - os: ubuntu-latest
+            archive: Logistix-Linux-x64.tar.gz
+          - os: macos-15-intel
+            archive: Logistix-macOS-x64.tar.gz
+          - os: macos-15
+            archive: Logistix-macOS-arm64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: Logistix-JAR
+          path: input
+      - name: Create macOS icon
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir Logistix.iconset
+          for size in 16 32 128 256 512; do
+            sips -z $size $size public/logistix.png --out Logistix.iconset/icon_${size}x${size}.png >/dev/null
+            double=$((size * 2))
+            sips -z $double $double public/logistix.png --out Logistix.iconset/icon_${size}x${size}@2x.png >/dev/null
+          done
+          iconutil -c icns Logistix.iconset -o Logistix.icns
+      - name: Package Windows image
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: jpackage --type app-image --name Logistix --app-version 2.0.0 --vendor Sofoste --description "Ocean freight routes and capacity manager" --input input --main-jar Logistix-2.0.0.jar --icon public/logistix.ico --win-console --dest package
+      - name: Package Linux image
+        if: runner.os == 'Linux'
+        shell: bash
+        run: jpackage --type app-image --name Logistix --app-version 2.0.0 --vendor Sofoste --description "Ocean freight routes and capacity manager" --input input --main-jar Logistix-2.0.0.jar --icon public/logistix.png --dest package
+      - name: Package macOS image
+        if: runner.os == 'macOS'
+        shell: bash
+        run: jpackage --type app-image --name Logistix --app-version 2.0.0 --vendor Sofoste --description "Ocean freight routes and capacity manager" --input input --main-jar Logistix-2.0.0.jar --icon Logistix.icns --dest package
+      - name: Smoke test Windows image
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath package\Logistix\Logistix.exe -WindowStyle Hidden -PassThru
+          try {
+            for ($attempt = 0; $attempt -lt 30; $attempt++) {
+              try { $health = Invoke-RestMethod http://127.0.0.1:8080/q/health; if ($health.status -eq 'UP') { break } } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if ($health.status -ne 'UP') { throw 'Logistix did not become healthy' }
+          } finally { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+      - name: Smoke test Unix image
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          EXECUTABLE="package/Logistix/bin/Logistix"
+          if [ "${{ runner.os }}" = "macOS" ]; then EXECUTABLE="package/Logistix.app/Contents/MacOS/Logistix"; fi
+          "$EXECUTABLE" > /tmp/logistix.log 2>&1 &
+          PID=$!
+          trap 'kill $PID' EXIT
+          for attempt in {1..30}; do curl -fsS http://127.0.0.1:8080/q/health && break || sleep 1; done
+          curl -fsS http://127.0.0.1:8080/api/dashboard | grep 'activeRoutes'
+      - name: Archive Windows image
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path package\Logistix -DestinationPath "${{ matrix.archive }}"
+      - name: Archive Linux image
+        if: runner.os == 'Linux'
+        shell: bash
+        run: tar -czf "${{ matrix.archive }}" -C package Logistix
+      - name: Archive macOS image
+        if: runner.os == 'macOS'
+        shell: bash
+        run: tar -czf "${{ matrix.archive }}" -C package Logistix.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+
+  publish:
+    needs: [build, native]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+      - name: Create source archive and checksums
+        run: |
+          git archive --format=tar.gz --output=release/logistix-v2.0.0-source.tar.gz HEAD
+          cd release && sha256sum Logistix-* logistix-v2.0.0-source.tar.gz > SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Logistix 2.0.0 — Ocean Control
+          body: |
+            A professional and learner-friendly restoration of Logistix.
+
+            - Angular 21 LTS ocean-blue operations cockpit
+            - Quarkus 3.40 LTS REST API with validation, OpenAPI and health checks
+            - Routes, capacity-aware bookings, dashboard metrics and demonstration data
+            - English, German and French settings with light, dark and system themes
+            - Native runtime bundles for Windows, Linux and macOS; no separate Java installation required
+
+            Extract the archive for your operating system, start Logistix, then open http://localhost:8080.
+          files: |
+            release/Logistix-2.0.0.jar
+            release/Logistix-Windows-x64.zip
+            release/Logistix-Linux-x64.tar.gz
+            release/Logistix-macOS-x64.tar.gz
+            release/Logistix-macOS-arm64.tar.gz
+            release/logistix-v2.0.0-source.tar.gz
+            release/SHA256SUMS.txt

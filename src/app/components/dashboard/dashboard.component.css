@@ -1,0 +1,52 @@
+.hero { min-height: 590px; padding-top: 72px; padding-bottom: 85px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 70px; }
+.status-line { display: flex; align-items: center; gap: 20px; }
+.api-status { display: flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface-glass); color: var(--muted); font-size: 10px; font-weight: 800; cursor: pointer; }
+.api-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 16%, transparent); }
+.api-status.offline i { background: var(--danger); box-shadow: none; }
+h1 { max-width: 720px; margin: 20px 0 24px; font-size: clamp(50px, 6vw, 83px); line-height: 1.02; letter-spacing: -.06em; }
+.hero-copy > p { max-width: 600px; margin: 0 0 36px; color: var(--muted); font-size: 19px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.primary-button, .secondary-button { min-height: 52px; padding: 0 22px; display: inline-flex; align-items: center; gap: 24px; border-radius: 13px; font-weight: 800; text-decoration: none; }
+.primary-button { background: var(--ocean); color: white; box-shadow: 0 14px 30px color-mix(in srgb, var(--ocean) 24%, transparent); }
+.secondary-button { border: 1px solid var(--line); background: var(--surface); }
+.ocean-map { position: relative; min-height: 420px; display: grid; place-items: center; }
+.ocean-map svg { position: relative; z-index: 2; width: 100%; overflow: visible; }
+.coast { fill: none; stroke: var(--line); stroke-width: 2; stroke-dasharray: 5 9; }
+.route-line { fill: none; stroke: var(--aqua); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 10; animation: routeFlow 12s linear infinite; }
+.port { fill: var(--canvas); stroke: var(--aqua); stroke-width: 4; }
+.ship { fill: var(--ocean); stroke: var(--ocean); stroke-width: 2; stroke-linecap: round; }
+.radar-ring { position: absolute; border: 1px solid color-mix(in srgb, var(--aqua) 28%, transparent); border-radius: 50%; animation: pulse 6s ease-in-out infinite; }
+.radar-ring.one { width: 330px; height: 330px; }
+.radar-ring.two { width: 230px; height: 230px; animation-delay: -3s; }
+.map-label { position: absolute; right: 2%; bottom: 10%; z-index: 3; display: grid; padding: 12px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-glass); backdrop-filter: blur(8px); }
+.map-label span { color: var(--aqua); font-size: 8px; font-weight: 800; letter-spacing: .15em; }
+.map-label strong { font-size: 13px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--line); }
+.metrics article { min-height: 150px; padding: 25px 28px; display: grid; align-content: center; gap: 2px; }
+.metrics article + article { border-left: 1px solid var(--line); }
+.metrics span, .metrics small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.metrics strong { font-size: 35px; letter-spacing: -.04em; }
+.departures { padding-top: 95px; padding-bottom: 110px; }
+.section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 28px; }
+.section-heading h2 { margin: 5px 0 0; font-size: 42px; letter-spacing: -.04em; }
+.section-heading a { color: var(--ocean-bright); font-weight: 800; text-decoration: none; }
+.route-list { display: grid; gap: 11px; }
+.route-row { display: grid; grid-template-columns: 150px 1fr 180px; align-items: center; gap: 24px; padding: 21px 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--card-shadow); }
+.route-status { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 10px; font-weight: 800; }
+.route-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
+.route-status i.transit { background: var(--success); }
+.route-path { display: grid; grid-template-columns: minmax(70px, auto) 1fr minmax(70px, auto); align-items: center; gap: 14px; }
+.route-path > div { display: flex; align-items: center; }
+.route-path span { height: 1px; flex: 1; background: var(--line); }
+.route-path i { width: 9px; height: 9px; border: 2px solid var(--aqua); border-radius: 50%; }
+.route-path strong:last-child { text-align: right; }
+.route-meta { display: grid; text-align: right; }
+.route-meta span { color: var(--muted); font-size: 11px; }
+.route-meta strong { font-size: 12px; }
+.capacity-bar { grid-column: 1 / -1; height: 3px; overflow: hidden; border-radius: 99px; background: var(--line); }
+.capacity-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ocean), var(--aqua)); }
+.empty-card { padding: 45px; border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); text-align: center; }
+@keyframes routeFlow { to { stroke-dashoffset: -120; } }
+@keyframes pulse { 50% { transform: scale(1.08); opacity: .55; } }
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 15px; } .ocean-map { min-height: 320px; order: -1; } .metrics { grid-template-columns: repeat(2, 1fr); } .metrics article:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); } .metrics article:nth-child(4) { border-top: 1px solid var(--line); } }
+@media (max-width: 650px) { .hero { padding-top: 35px; } .ocean-map { min-height: 250px; } h1 { font-size: 48px; } .metrics article { min-height: 125px; padding: 19px; } .route-row { grid-template-columns: 1fr; gap: 13px; } .route-meta { text-align: left; } .section-heading { align-items: start; flex-direction: column; gap: 8px; } }

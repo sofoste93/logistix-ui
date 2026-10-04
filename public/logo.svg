@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-label="Logistix">
+  <defs><linearGradient id="o" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#075b7a"/><stop offset="1" stop-color="#22b8b2"/></linearGradient></defs>
+  <rect width="64" height="64" rx="18" fill="url(#o)"/>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 36h34l9-11H41l-6-8H18l-8 19Zm3 0v7h38v-7M21 17v19M35 17v19"/>
+    <circle cx="21" cy="46" r="4"/><circle cx="42" cy="46" r="4"/>
+  </g>
+</svg>

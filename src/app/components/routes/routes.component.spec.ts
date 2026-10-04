@@ -1,23 +1,19 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { ApiService } from '../../services/api.service';
 import { RoutesComponent } from './routes.component';
 
 describe('RoutesComponent', () => {
-  let component: RoutesComponent;
-  let fixture: ComponentFixture<RoutesComponent>;
-
-  beforeEach(async () => {
+  it('loads routes and calculates allocated capacity', async () => {
+    const route = { id: 'r1', stops: ['A', 'B'], capacityWeightKg: 1000, capacityVolumeM3: 10,
+      availableWeightKg: 650, availableVolumeM3: 6, status: 'SCHEDULED' as const, departureTime: new Date().toISOString() };
     await TestBed.configureTestingModule({
-      imports: [RoutesComponent]
-    })
-    .compileComponents();
+      imports: [RoutesComponent],
+      providers: [{ provide: ApiService, useValue: { getRoutes: () => of([route]) } }]
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(RoutesComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    const component = TestBed.createComponent(RoutesComponent).componentInstance;
+    expect(component.routes()).toEqual([route]);
+    expect(component.usedPercent(route)).toBe(35);
   });
 });

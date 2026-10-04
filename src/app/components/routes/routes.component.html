@@ -1,20 +1,46 @@
-<div class="container mt-4">
-    <h2 class="text-primary">🚛 Verfügbare Routen</h2>
-    <table class="table table-hover shadow-sm mt-3">
-      <thead class="table-dark">
-        <tr>
-          <th>Stationen</th>
-          <th>Verfügbares Gewicht</th>
-          <th>Verfügbares Volumen</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let route of routes" class="animate__animated animate__fadeIn">
-          <td>{{ route.stations.join(' → ') }}</td>
-          <td>{{ route.availableWeight }} kg</td>
-          <td>{{ route.availableVolume }} m³</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
+<section class="page-shell page-intro">
+  <div><span class="eyebrow">NETWORK / ROUTES</span><h1>Freight corridors</h1><p>Capacity, stops and departure windows from the Quarkus route service.</p></div>
+  <button class="primary-button" type="button" (click)="formOpen.set(!formOpen())">{{ formOpen() ? 'Close form' : '+ Plan a route' }}</button>
+</section>
+
+<section class="page-shell toolbar">
+  <label class="search-field"><span class="sr-only">Search routes</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4-4m2-6a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg><input type="search" placeholder="Search a port or city…" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+  <span>{{ filteredRoutes().length }} corridors</span>
+</section>
+
+@if (formOpen()) {
+  <section class="page-shell form-panel">
+    <div><span class="eyebrow">POST /api/routes</span><h2>Plan a freight route</h2><p>This form becomes a validated JSON request. Separate stops with commas.</p></div>
+    <form (ngSubmit)="createRoute()" #routeForm="ngForm">
+      <label class="wide"><span>Stops in travel order</span><input name="stops" [(ngModel)]="newRoute.stops" required minlength="5"></label>
+      <label><span>Weight capacity (kg)</span><input type="number" name="weight" [(ngModel)]="newRoute.capacityWeightKg" required min="1"></label>
+      <label><span>Volume capacity (m³)</span><input type="number" name="volume" [(ngModel)]="newRoute.capacityVolumeM3" required min="1"></label>
+      <label class="wide"><span>Departure</span><input type="datetime-local" name="departure" [(ngModel)]="newRoute.departureTime" required></label>
+      <button class="primary-button wide" [disabled]="routeForm.invalid || saving()">{{ saving() ? 'Sending…' : 'Create route' }}</button>
+    </form>
+  </section>
+}
+
+@if (error()) { <div class="page-shell"><div class="error-banner"><span>!</span><p>{{ error() }}</p><button type="button" (click)="load()">Retry</button></div></div> }
+
+<section class="page-shell route-grid" aria-live="polite">
+  @if (loading()) {
+    @for (_ of [1,2,3]; track _) { <div class="route-card skeleton"></div> }
+  } @else {
+    @for (route of filteredRoutes(); track route.id) {
+      <article class="route-card">
+        <div class="card-heading"><span class="status"><i [class.transit]="route.status === 'IN_TRANSIT'"></i>{{ route.status.replace('_', ' ') }}</span><span class="route-code">{{ route.id.slice(0, 8).toUpperCase() }}</span></div>
+        <div class="stops">
+          @for (stop of route.stops; track stop; let first = $first; let last = $last) {
+            <div><i [class.terminal]="first || last"></i><span>{{ stop }}</span></div>
+          }
+        </div>
+        <div class="departure"><span>DEPARTURE</span><strong>{{ route.departureTime | date:'EEE, dd MMM · HH:mm' }}</strong></div>
+        <div class="capacity"><div><span>Weight available</span><strong>{{ route.availableWeightKg / 1000 | number:'1.1-1' }} / {{ route.capacityWeightKg / 1000 | number:'1.1-1' }} t</strong></div><div class="bar"><i [style.width.%]="usedPercent(route)"></i></div><small>{{ usedPercent(route) }}% allocated · {{ route.availableVolumeM3 }} m³ free</small></div>
+      </article>
+    } @empty {
+      <div class="empty-state"><strong>No corridor found</strong><span>Try another city or clear the search.</span></div>
+    }
+  }
+</section>
+

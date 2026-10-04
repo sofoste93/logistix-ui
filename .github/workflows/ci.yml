@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: angular-ui
+          path: dist/logistix-ui/browser
+
+  api:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['17', '21']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - run: mvn -B -f backend/pom.xml test
+
+  integrated-jar:
+    needs: [ui, api]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - uses: actions/download-artifact@v4
+        with:
+          name: angular-ui
+          path: dist/logistix-ui/browser
+      - run: mvn -B -f backend/pom.xml package -DskipTests
+      - name: Smoke test packaged application
+        run: |
+          java -jar backend/target/logistix-api-2.0.0-runner.jar > /tmp/logistix.log 2>&1 &
+          PID=$!
+          trap 'kill $PID' EXIT
+          for attempt in {1..30}; do curl -fsS http://127.0.0.1:8080/q/health && break || sleep 1; done
+          curl -fsS http://127.0.0.1:8080/api/dashboard | grep 'activeRoutes'
+          curl -fsS http://127.0.0.1:8080/ | grep '<app-root'

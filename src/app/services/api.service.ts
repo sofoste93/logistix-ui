@@ -1,32 +1,37 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+  Booking,
+  CreateBookingRequest,
+  CreateRouteRequest,
+  DashboardSummary,
+  TransportRoute
+} from '../models/logistics.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+/** Typed boundary between the Angular application and the Quarkus REST API. */
+@Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://localhost:8080'; // 🔥 Backend Quarkus
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/api';
 
-  constructor(private http: HttpClient) { }
-
-  // 📌 Récupérer toutes les routes
-  getRoutes(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/routes`);
+  getSummary(): Observable<DashboardSummary> {
+    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard`);
   }
 
-  // 📌 Ajouter une nouvelle route
-  addRoute(route: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/routes`, route);
+  getRoutes(): Observable<TransportRoute[]> {
+    return this.http.get<TransportRoute[]>(`${this.baseUrl}/routes`);
   }
 
-  // 📌 Récupérer toutes les réservations
-  getBookings(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/bookings`);
+  addRoute(route: CreateRouteRequest): Observable<TransportRoute> {
+    return this.http.post<TransportRoute>(`${this.baseUrl}/routes`, route);
   }
 
-  // 📌 Ajouter une réservation
-  addBooking(booking: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/bookings`, booking);
+  getBookings(): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${this.baseUrl}/bookings`);
+  }
+
+  addBooking(booking: CreateBookingRequest): Observable<Booking> {
+    return this.http.post<Booking>(`${this.baseUrl}/bookings`, booking);
   }
 }

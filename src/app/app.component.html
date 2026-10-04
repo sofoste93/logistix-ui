@@ -1,30 +1,54 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container">
-    <a class="navbar-brand" href="#">📦 Logistix</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <a class="brand" routerLink="/" aria-label="Logistix home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M8 31h25l7-8h-9l-4-6H14L8 31Zm2 0v5h29v-5M16 17v14M27 17v14"/><circle cx="16" cy="38" r="3"/><circle cx="33" cy="38" r="3"/></svg>
+    </span>
+    <span><strong>LOGISTRIX</strong><small>FLOW WITH CLARITY</small></span>
+  </a>
+
+  <nav aria-label="Primary navigation">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ preferences.t('dashboard') }}</a>
+    <a routerLink="/routes" routerLinkActive="active">{{ preferences.t('routes') }}</a>
+    <a routerLink="/bookings" routerLinkActive="active">{{ preferences.t('bookings') }}</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="text-action" type="button" (click)="open(helpDialog)">{{ preferences.t('help') }}</button>
+    <button class="icon-button" type="button" (click)="open(settingsDialog)" [attr.aria-label]="preferences.t('settings')">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8 4.8-1.9 1.1.2 2.2-2.7 1.5-1.8-1.2-2 .8-.3 2.2h-3l-.3-2.2-2-.8-1.8 1.2-2.7-1.5.2-2.2L0 13.3v-3.1l1.9-1.1-.2-2.2 2.7-1.5 1.8 1.2 2-.8.3-2.2h3l.3 2.2 2 .8 1.8-1.2 2.7 1.5-.2 2.2 1.9 1.1v3.1Z"/></svg>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link active" href="/routes">📍 Routes Disponibles</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/bookings">📦 Réservations</a>
-        </li>
-      </ul>
-    </div>
   </div>
-</nav>
+</header>
 
-<div class="container text-center mt-5">
-  <h1 class="display-4 fw-bold">📦 Logistix - Ihr modernes Frachtmanagement 🚚</h1>
-  <p class="lead">Verwalten Sie Ihre Frachtstrecken und Reservierungen einfach und effizient.</p>
-  
-  <div class="mt-4">
-    <a href="/routes" class="btn btn-primary btn-lg m-2">🚛 Routen anzeigen</a>
-    <a href="/bookings" class="btn btn-success btn-lg m-2">📦 Reservierungen anzeigen</a>
-  </div>
-</div>
+<main id="main"><router-outlet /></main>
 
-<router-outlet></router-outlet>
+<footer>
+  <span>LOGISTRIX 2.0</span>
+  <span>Angular · Quarkus REST · OpenAPI</span>
+  <a href="/q/swagger-ui" target="_blank" rel="noopener">API explorer ↗</a>
+</footer>
+
+<dialog #settingsDialog (click)="closeOnBackdrop($event, settingsDialog)">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-heading"><div><span class="kicker">LOGISTRIX</span><h2>{{ preferences.t('settings') }}</h2></div><button class="icon-button" value="close" [attr.aria-label]="preferences.t('close')">×</button></div>
+    <label class="field"><span>{{ preferences.t('language') }}</span><select [value]="preferences.language()" (change)="setLanguage($any($event.target).value)"><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option></select></label>
+    <fieldset><legend>{{ preferences.t('appearance') }}</legend><div class="segmented">
+      <button type="button" [class.active]="preferences.theme() === 'light'" (click)="setTheme('light')">{{ preferences.t('light') }}</button>
+      <button type="button" [class.active]="preferences.theme() === 'dark'" (click)="setTheme('dark')">{{ preferences.t('dark') }}</button>
+      <button type="button" [class.active]="preferences.theme() === 'system'" (click)="setTheme('system')">{{ preferences.t('system') }}</button>
+    </div></fieldset>
+    <label class="toggle"><span>{{ preferences.t('reduceMotion') }}</span><input type="checkbox" [checked]="preferences.reduceMotion()" (change)="preferences.setReduceMotion($any($event.target).checked)"><i></i></label>
+  </form>
+</dialog>
+
+<dialog #helpDialog (click)="closeOnBackdrop($event, helpDialog)">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-heading"><div><span class="kicker">LEARNER DECK</span><h2>{{ preferences.t('helpTitle') }}</h2></div><button class="icon-button" value="close" [attr.aria-label]="preferences.t('close')">×</button></div>
+    <div class="flow-diagram"><span>ANGULAR UI</span><b>JSON →</b><span>QUARKUS API</span><b>→</b><span>STORE</span></div>
+    <p>{{ preferences.t('helpText') }}</p>
+    <p class="note">{{ preferences.t('localData') }}</p>
+    <a class="primary-button" href="/q/swagger-ui" target="_blank" rel="noopener">Open API explorer ↗</a>
+  </form>
+</dialog>

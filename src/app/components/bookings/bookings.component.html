@@ -1,22 +1,46 @@
-<div class="container mt-4">
-    <h2 class="text-success">📦 Aktuelle Reservierungen</h2>
-    <table class="table table-hover shadow-sm mt-3">
-      <thead class="table-dark">
-        <tr>
-          <th>Start</th>
-          <th>Ziel</th>
-          <th>Reserviertes Gewicht</th>
-          <th>Reserviertes Volumen</th>
-        </tr>
-      </thead>
+<section class="page-shell page-intro">
+  <div><span class="eyebrow">MANIFEST / BOOKINGS</span><h1>Cargo manifest</h1><p>Reserve capacity safely and trace every confirmed shipment.</p></div>
+  <button class="primary-button" type="button" (click)="formOpen.set(!formOpen())">{{ formOpen() ? 'Close form' : '+ New booking' }}</button>
+</section>
+
+@if (formOpen()) {
+  <section class="page-shell booking-layout">
+    <form (ngSubmit)="createBooking()" #bookingForm="ngForm">
+      <div class="form-heading"><span class="eyebrow">POST /api/bookings</span><h2>Reserve cargo capacity</h2><p>The API verifies stop order and remaining weight and volume before confirming.</p></div>
+      <label><span>Route</span><select name="routeId" [ngModel]="newBooking.routeId" (ngModelChange)="selectRoute($event)" required>@for (route of routes(); track route.id) { <option [value]="route.id">{{ route.stops.join(' → ') }}</option> }</select></label>
+      <label><span>Customer</span><input name="customer" [(ngModel)]="newBooking.customer" required minlength="2" placeholder="Company or family name"></label>
+      <div class="two-columns">
+        <label><span>Origin</span><select name="origin" [(ngModel)]="newBooking.origin" required>@for (stop of selectedRoute()?.stops ?? []; track stop) { <option [value]="stop">{{ stop }}</option> }</select></label>
+        <label><span>Destination</span><select name="destination" [(ngModel)]="newBooking.destination" required>@for (stop of selectedRoute()?.stops ?? []; track stop) { <option [value]="stop">{{ stop }}</option> }</select></label>
+      </div>
+      <div class="two-columns">
+        <label><span>Weight (kg)</span><input type="number" name="weight" [(ngModel)]="newBooking.reservedWeightKg" required min="1" [max]="selectedRoute()?.availableWeightKg ?? 1"></label>
+        <label><span>Volume (m³)</span><input type="number" name="volume" [(ngModel)]="newBooking.reservedVolumeM3" required min="0.1" step="0.1" [max]="selectedRoute()?.availableVolumeM3 ?? 1"></label>
+      </div>
+      <button class="primary-button" [disabled]="bookingForm.invalid || saving()">{{ saving() ? 'Validating…' : 'Confirm booking' }}</button>
+    </form>
+    <aside>
+      <span class="eyebrow">CAPACITY CHECK</span>
+      <div class="capacity-visual"><strong>{{ selectedRoute()?.availableWeightKg ?? 0 | number:'1.0-0' }}</strong><span>kg available</span><i [style.--fill]="((selectedRoute()?.availableWeightKg ?? 0) / (selectedRoute()?.capacityWeightKg ?? 1) * 100) + '%'" aria-hidden="true"></i></div>
+      <dl><div><dt>Volume free</dt><dd>{{ selectedRoute()?.availableVolumeM3 ?? 0 }} m³</dd></div><div><dt>Stops</dt><dd>{{ selectedRoute()?.stops?.length ?? 0 }}</dd></div><div><dt>Validation</dt><dd>Server-side</dd></div></dl>
+    </aside>
+  </section>
+}
+
+@if (error()) { <div class="page-shell"><div class="error-banner"><span>!</span><p>{{ error() }}</p><button type="button" (click)="load()">Retry</button></div></div> }
+
+<section class="page-shell manifest-section">
+  <div class="manifest-heading"><span>{{ bookings().length }} ENTRIES</span><span>LIVE REST DATA</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Reference</th><th>Customer</th><th>Corridor</th><th>Cargo</th><th>Status</th><th>Created</th></tr></thead>
       <tbody>
-        <tr *ngFor="let booking of bookings" class="animate__animated animate__fadeIn">
-          <td>{{ booking.routeStart }}</td>
-          <td>{{ booking.routeZiel }}</td>
-          <td>{{ booking.reservedWeight }} kg</td>
-          <td>{{ booking.reservedVolume }} m³</td>
-        </tr>
+        @if (loading()) { <tr><td colspan="6" class="loading-row">Loading manifest…</td></tr> }
+        @for (booking of bookings(); track booking.id) {
+          <tr><td><strong class="reference">{{ booking.reference }}</strong></td><td><strong>{{ booking.customer }}</strong></td><td><span class="route-name">{{ routeName(booking.routeId) }}</span><small>{{ booking.origin }} → {{ booking.destination }}</small></td><td><strong>{{ booking.reservedWeightKg / 1000 | number:'1.1-1' }} t</strong><small>{{ booking.reservedVolumeM3 }} m³</small></td><td><span class="status" [class.transit]="booking.status === 'IN_TRANSIT'">{{ booking.status.replace('_', ' ') }}</span></td><td><span>{{ booking.createdAt | date:'dd MMM' }}</span><small>{{ booking.createdAt | date:'HH:mm' }}</small></td></tr>
+        }
       </tbody>
     </table>
   </div>
-  
+</section>
+

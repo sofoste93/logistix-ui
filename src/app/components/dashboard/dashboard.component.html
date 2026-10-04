@@ -1,0 +1,41 @@
+<section class="hero page-shell">
+  <div class="hero-copy">
+    <div class="status-line"><span class="eyebrow">{{ preferences.t('operations') }}</span><button class="api-status" [class.offline]="!connected()" (click)="load()"><i></i>{{ connected() ? preferences.t('live') : preferences.t('offline') }}</button></div>
+    <h1>{{ preferences.t('welcome') }}</h1>
+    <p>{{ preferences.t('subtitle') }}</p>
+    <div class="hero-actions"><a class="primary-button" routerLink="/routes">{{ preferences.t('viewRoutes') }} <span>→</span></a><a class="secondary-button" routerLink="/bookings">{{ preferences.t('newBooking') }}</a></div>
+  </div>
+  <div class="ocean-map" aria-hidden="true">
+    <div class="radar-ring one"></div><div class="radar-ring two"></div>
+    <svg viewBox="0 0 620 380">
+      <path class="coast" d="M42 97c70-58 142-52 190-12 43 36 77 18 125-3 68-29 131 5 218 85M54 291c77-58 145-45 208-2 62 43 137 36 285-29"/>
+      <path class="route-line" d="M91 242C176 149 255 296 334 186S471 105 548 158"/>
+      <circle class="port" cx="91" cy="242" r="8"/><circle class="port" cx="334" cy="186" r="8"/><circle class="port" cx="548" cy="158" r="8"/>
+      <g class="ship" transform="translate(278 193)"><path d="M0 24h75l-13 18H15L0 24Zm19 0V9h30l9 15M28 9V0h15v9"/><path d="M11 47c8 7 16 7 24 0 8 7 16 7 24 0"/></g>
+    </svg>
+    <div class="map-label"><span>LIVE NETWORK</span><strong>03 corridors</strong></div>
+  </div>
+</section>
+
+<section class="metrics page-shell" aria-label="Operational metrics">
+  <article><span>01 / {{ preferences.t('activeRoutes') }}</span><strong>{{ summary()?.activeRoutes ?? '—' }}</strong><small>EUROPE NETWORK</small></article>
+  <article><span>02 / {{ preferences.t('openBookings') }}</span><strong>{{ summary()?.bookings ?? '—' }}</strong><small>LIVE MANIFEST</small></article>
+  <article><span>03 / {{ preferences.t('available') }}</span><strong>{{ (summary()?.availableWeightKg ?? 0) / 1000 | number:'1.1-1' }} t</strong><small>WEIGHT REMAINING</small></article>
+  <article><span>04 / {{ preferences.t('utilization') }}</span><strong>{{ summary()?.capacityUsedPercent ?? 0 }}%</strong><small>NETWORK CAPACITY</small></article>
+</section>
+
+<section class="departures page-shell">
+  <div class="section-heading"><div><span class="eyebrow">NEXT MOVEMENTS</span><h2>{{ preferences.t('routes') }}</h2></div><a routerLink="/routes">All routes →</a></div>
+  <div class="route-list">
+    @for (route of routes(); track route.id) {
+      <article class="route-row">
+        <div class="route-status"><i [class.transit]="route.status === 'IN_TRANSIT'"></i><span>{{ route.status.replace('_', ' ') }}</span></div>
+        <div class="route-path"><strong>{{ route.stops[0] }}</strong><div><span></span><i></i><span></span></div><strong>{{ route.stops[route.stops.length - 1] }}</strong></div>
+        <div class="route-meta"><span>{{ departure(route) }}</span><strong>{{ routeProgress(route) }}% loaded</strong></div>
+        <div class="capacity-bar"><i [style.width.%]="routeProgress(route)"></i></div>
+      </article>
+    } @empty {
+      <div class="empty-card">Start the Quarkus API to load live routes.</div>
+    }
+  </div>
+</section>
